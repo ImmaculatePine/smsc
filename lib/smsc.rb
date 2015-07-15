@@ -60,5 +60,27 @@ module Smsc
 
       @connection.get '/sys/get.php', params
     end
+
+    def inbound(options = {})
+      params = {
+        get_answers: 1,
+        login: @login,
+        psw: @password,
+        charset: @charset,
+        hour: options[:hour],
+        after_id: options[:after_id],
+        fmt: 3
+      }
+
+      response = @connection.get('/sys/get.php', params)
+      json = JSON.parse(response.body)
+      if json.is_a?(Hash) && json['error'].present?
+        []
+      else
+        json.map do |data|
+          OpenStruct.new(data)
+        end
+      end
+    end
   end
 end
